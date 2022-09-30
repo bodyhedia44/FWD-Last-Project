@@ -1,8 +1,8 @@
 package com.udacity.project4.locationreminders.savereminder
 
 import android.app.Application
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PointOfInterest
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseViewModel
@@ -12,7 +12,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.launch
 
-class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
+class SaveReminderViewModel(val app: Application, state: SavedStateHandle, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
     val reminderTitle = MutableLiveData<String>()
     val reminderDescription = MutableLiveData<String>()
@@ -79,4 +79,83 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         }
         return true
     }
+
+    private val _geofenceIndex = state.getLiveData(GEOFENCE_INDEX_KEY, -1)
+    private val _hintIndex = state.getLiveData(HINT_INDEX_KEY, 0)
+    val geofenceIndex: LiveData<Int>
+        get() = _geofenceIndex
+
+    val geofenceHintResourceId = Transformations.map(geofenceIndex) {
+        val index = geofenceIndex?.value ?: -1
+        when {
+            index < 0 -> R.string.not_started_hint
+            index < GeofencingConstants.NUM_LANDMARKS -> GeofencingConstants.LANDMARK_DATA[geofenceIndex.value!!].hint
+            else -> R.string.geofence_over
+        }
+    }
+
+//    val geofenceImageResourceId = Transformations.map(geofenceIndex) {
+//        val index = geofenceIndex.value ?: -1
+//        when {
+//            index < GeofencingConstants.NUM_LANDMARKS -> R.drawable.android_map
+//            else -> R.drawable.android_treasure
+//        }
+//    }
+
+    fun updateHint(currentIndex: Int) {
+        _hintIndex.value = currentIndex+1
+    }
+
+    fun geofenceActivated() {
+        _geofenceIndex.value = _hintIndex.value
+    }
+
+    fun geofenceIsActive() =_geofenceIndex.value == _hintIndex.value
+    fun nextGeofenceIndex() = _hintIndex.value ?: 0
+}
+
+private const val HINT_INDEX_KEY = "hintIndex"
+private const val GEOFENCE_INDEX_KEY = "geofenceIndex"
+data class LandmarkDataObject(val id: String, val hint: Int, val name: Int, val latLong: LatLng)
+internal object GeofencingConstants {
+
+    /**
+     * Used to set an expiration time for a geofence. After this amount of time, Location services
+     * stops tracking the geofence. For this sample, geofences expire after one hour.
+     */
+    val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = java.util.concurrent.TimeUnit.HOURS.toMillis(1)
+
+    val LANDMARK_DATA = arrayOf(
+        LandmarkDataObject(
+            "golden_gate_bridge",
+            R.string.golden_gate_bridge_hint,
+            R.string.golden_gate_bridge_location,
+            LatLng(37.819927, -122.478256)
+        ),
+
+        LandmarkDataObject(
+            "ferry_building",
+            R.string.ferry_building_hint,
+            R.string.ferry_building_location,
+            LatLng(37.795490, -122.394276)
+        ),
+
+        LandmarkDataObject(
+            "pier_39",
+            R.string.pier_39_hint,
+            R.string.pier_39_location,
+            LatLng(37.808674, -122.409821)
+        ),
+
+        LandmarkDataObject(
+            "union_square",
+            R.string.union_square_hint,
+            R.string.union_square_location,
+            LatLng(37.788151, -122.407570)
+        )
+    )
+
+    val NUM_LANDMARKS = LANDMARK_DATA.size
+    const val GEOFENCE_RADIUS_IN_METERS = 100f
+    const val EXTRA_GEOFENCE_INDEX = "GEOFENCE_INDEX"
 }
