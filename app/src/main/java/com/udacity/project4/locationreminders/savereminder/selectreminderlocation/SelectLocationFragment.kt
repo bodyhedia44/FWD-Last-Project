@@ -3,16 +3,21 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.app.PendingIntent
+import android.content.Context.LOCATION_SERVICE
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
@@ -23,6 +28,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.savereminder.GeofencingConstants
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
@@ -36,11 +42,14 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
     private lateinit var map:GoogleMap
     private val TAG = SelectLocationFragment::class.java.simpleName
     private lateinit var geofencingClient: GeofencingClient
+    var ispoi=0
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
         intent.action = ACTION_GEOFENCE_EVENT
         PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -61,14 +70,9 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
-//        TODO: add the map setup implementation
-//        TODO: zoom to the user location after taking his permission
-//        TODO: add style to the map
-//        TODO: put a marker to location that the user selected
-
-
-//        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
+        binding.button.setOnClickListener{
+            onLocationSelected()
+        }
 
         return binding.root
     }
@@ -81,9 +85,11 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
     }
 
     private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
+        if(ispoi==0){
+            Toast.makeText(requireContext(),"You donot choose any location",Toast.LENGTH_SHORT).show()
+        }else{
+            findNavController().popBackStack()
+        }
     }
 
 
@@ -124,8 +130,8 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
     override fun onMapReady(p0: GoogleMap?) {
         Log.d("i am here","from frag")
          map=p0!!
-        val sydeny = LatLng(-34.0,151.0)
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydeny,15f))
+//        val sydeny = LatLng(-34.0,151.0)
+//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydeny,15f))
         if (checkPermission()) return
         map.isMyLocationEnabled=true
         setPoiClick(map)
@@ -148,12 +154,15 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
     }
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
+            map.clear()
             val poiMarker = map.addMarker(
                 MarkerOptions()
                     .position(poi.latLng)
                     .title(poi.name)
             )
             poiMarker.showInfoWindow()
+            _viewModel.selectedPOI.value=poi
+            ispoi+=1
         }
     }
     private fun setMapStyle(map: GoogleMap) {
@@ -260,22 +269,24 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        removeGeofences()
+    }
+
     companion object {
         internal const val ACTION_GEOFENCE_EVENT =
             "HuntMainActivity.treasureHunt.action.ACTION_GEOFENCE_EVENT"
     }
 
     private fun removeGeofences() {
+
         geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnSuccessListener {
-                // Geofences removed
-                Log.d(TAG, getString(R.string.geofences_removed))
-                Toast.makeText(requireContext(), R.string.geofences_removed, Toast.LENGTH_SHORT)
-                    .show()
             }
             addOnFailureListener {
-                // Failed to remove geofences
-                Log.d(TAG, getString(R.string.geofences_not_removed))
+
             }
         }
     }

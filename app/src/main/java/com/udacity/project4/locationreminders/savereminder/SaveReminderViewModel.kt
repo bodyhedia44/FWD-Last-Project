@@ -12,7 +12,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.launch
 
-class SaveReminderViewModel(val app: Application, state: SavedStateHandle, val dataSource: ReminderDataSource) :
+class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
     val reminderTitle = MutableLiveData<String>()
     val reminderDescription = MutableLiveData<String>()
@@ -80,8 +80,8 @@ class SaveReminderViewModel(val app: Application, state: SavedStateHandle, val d
         return true
     }
 
-    private val _geofenceIndex = state.getLiveData(GEOFENCE_INDEX_KEY, -1)
-    private val _hintIndex = state.getLiveData(HINT_INDEX_KEY, 0)
+    private val _geofenceIndex = MutableLiveData<Int>(-1)
+    private val _hintIndex =MutableLiveData<Int>(0)
     val geofenceIndex: LiveData<Int>
         get() = _geofenceIndex
 
@@ -112,6 +112,12 @@ class SaveReminderViewModel(val app: Application, state: SavedStateHandle, val d
 
     fun geofenceIsActive() =_geofenceIndex.value == _hintIndex.value
     fun nextGeofenceIndex() = _hintIndex.value ?: 0
+
+
+
+    private val _POIs = MutableLiveData<MutableList<ReminderDTO>>()
+    val POIs: LiveData<MutableList<ReminderDTO>>
+        get() = _POIs
 }
 
 private const val HINT_INDEX_KEY = "hintIndex"

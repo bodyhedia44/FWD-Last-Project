@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 
 class RemindersListViewModel(
     app: Application,
-    state: SavedStateHandle,
     private val dataSource: ReminderDataSource
 ) : BaseViewModel(app) {
     // list that holds the reminder data to be displayed on the UI

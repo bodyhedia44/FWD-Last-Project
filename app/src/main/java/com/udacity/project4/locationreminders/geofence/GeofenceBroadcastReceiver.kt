@@ -1,8 +1,15 @@
 package com.udacity.project4.locationreminders.geofence
 
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingEvent
+import com.udacity.project4.locationreminders.savereminder.GeofencingConstants
+import com.udacity.project4.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment.Companion.ACTION_GEOFENCE_EVENT
 
 /**
  * Triggered by the Geofence.  Since we can have many Geofences at once, we pull the request
@@ -17,7 +24,38 @@ import android.content.Intent
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
-//TODO: implement the onReceive method to receive the geofencing events at the background
+            if (intent.action == ACTION_GEOFENCE_EVENT) {
+                val geofencingEvent = GeofencingEvent.fromIntent(intent)
+
+                if (geofencingEvent.hasError()) {
+                    return
+                }
+
+                if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+
+                    val fenceId = when {
+                        geofencingEvent.triggeringGeofences.isNotEmpty() ->
+                            geofencingEvent.triggeringGeofences[0].requestId
+                        else -> {
+                            return
+                        }
+                    }
+                    val foundIndex = GeofencingConstants.LANDMARK_DATA.indexOfFirst {
+                        it.id == fenceId
+                    }
+                    if (-1 == foundIndex) {
+                        return
+                    }
+                    val notificationManager = ContextCompat.getSystemService(
+                        context,
+                        NotificationManager::class.java
+                    ) as NotificationManager
+
+//                    notificationManager.sendGeofenceEnteredNotification(
+//                        context, foundIndex
+//                    )
+                }
+            }
+        }
 
     }
-}

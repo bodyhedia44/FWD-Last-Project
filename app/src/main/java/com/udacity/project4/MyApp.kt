@@ -1,6 +1,7 @@
 package com.udacity.project4
 
 import android.app.Application
+import androidx.lifecycle.SavedStateHandle
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
@@ -33,6 +34,7 @@ class MyApp : Application() {
                 SaveReminderViewModel(
                     get(),
                     get() as ReminderDataSource
+//                    get() as SavedStateHandle
                 )
             }
             single { RemindersLocalRepository(get()) as ReminderDataSource }
