@@ -1,10 +1,12 @@
 package com.udacity.project4
 
 import android.app.Application
-import androidx.lifecycle.SavedStateHandle
+import android.content.Intent
+import androidx.core.app.JobIntentService
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
+import com.udacity.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import org.koin.android.ext.koin.androidContext
@@ -39,6 +41,14 @@ class MyApp : Application() {
             }
             single { RemindersLocalRepository(get()) as ReminderDataSource }
             single { LocalDB.createRemindersDao(this@MyApp) }
+
+            applicationContext?.run {
+                JobIntentService.enqueueWork(
+                this,
+                GeofenceTransitionsJobIntentService::class.java,
+                573,
+                Intent(applicationContext, GeofenceTransitionsJobIntentService::class.java)
+            ) }
         }
 
         startKoin {

@@ -2,8 +2,6 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 
 import android.Manifest
-import android.app.PendingIntent
-import android.content.Context.LOCATION_SERVICE
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -11,6 +9,7 @@ import android.content.res.Resources
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.widget.Toast
@@ -20,17 +19,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
-import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
-import com.udacity.project4.locationreminders.savereminder.GeofencingConstants
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
@@ -41,13 +39,12 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map:GoogleMap
     private val TAG = SelectLocationFragment::class.java.simpleName
-    private lateinit var geofencingClient: GeofencingClient
     var ispoi=0
-    private val geofencePendingIntent: PendingIntent by lazy {
-        val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
-        intent.action = ACTION_GEOFENCE_EVENT
-        PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-    }
+    var mFusedLocationClient: FusedLocationProviderClient? = null
+    var PERMISSION_ID = 44
+    var long =0
+    var lat =0
+
 
 
 
@@ -73,7 +70,6 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
         binding.button.setOnClickListener{
             onLocationSelected()
         }
-
         return binding.root
     }
 
@@ -122,10 +118,6 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
         checkDeviceLocationSettingsAndStartGeofence()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        geofencingClient = LocationServices.getGeofencingClient(requireActivity())
-    }
 
     override fun onMapReady(p0: GoogleMap?) {
         Log.d("i am here","from frag")
@@ -210,84 +202,7 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
             }
         }
         locationSettingsResponseTask.addOnCompleteListener {
-            if ( it.isSuccessful ) {
-                addGeofenceForClue()
-            }
-        }
-    }
 
-    private fun addGeofenceForClue() {
-        if (_viewModel.geofenceIsActive()) return
-        val currentGeofenceIndex = _viewModel.nextGeofenceIndex()
-        if(currentGeofenceIndex >= GeofencingConstants.NUM_LANDMARKS) {
-            removeGeofences()
-            _viewModel.geofenceActivated()
-            return
-        }
-        val currentGeofenceData = GeofencingConstants.LANDMARK_DATA[currentGeofenceIndex]
-
-        val geofence = Geofence.Builder()
-            .setRequestId(currentGeofenceData.id)
-            .setCircularRegion(currentGeofenceData.latLong.latitude,
-                currentGeofenceData.latLong.longitude,
-                GeofencingConstants.GEOFENCE_RADIUS_IN_METERS
-            )
-            .setExpirationDuration(GeofencingConstants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-            .build()
-
-        val geofencingRequest = GeofencingRequest.Builder()
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-            .addGeofence(geofence)
-            .build()
-
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-            addOnCompleteListener {
-                if (ActivityCompat.checkSelfPermission(
-                        requireContext(),
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    return@addOnCompleteListener
-                }
-                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
-                    addOnSuccessListener {
-                        Toast.makeText(requireContext(), R.string.geofences_added,
-                            Toast.LENGTH_SHORT)
-                            .show()
-                        Log.e("Add Geofence", geofence.requestId)
-                        _viewModel.geofenceActivated()
-                    }
-                    addOnFailureListener {
-                        Toast.makeText(requireContext(), R.string.geofences_not_added,
-                            Toast.LENGTH_SHORT).show()
-                        if ((it.message != null)) {
-                            Log.w(TAG, it.message!!)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        removeGeofences()
-    }
-
-    companion object {
-        internal const val ACTION_GEOFENCE_EVENT =
-            "HuntMainActivity.treasureHunt.action.ACTION_GEOFENCE_EVENT"
-    }
-
-    private fun removeGeofences() {
-
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-            addOnSuccessListener {
-            }
-            addOnFailureListener {
-
-            }
         }
     }
 }

@@ -33,7 +33,7 @@
     <string name="welcome">Welcome</string>
     <string name="err_enter_title">Please enter title</string>
     <string name="err_select_location">Please select location</string>
-    <string name="geofences_added">Clue Geofence added.</string>
+    <string name="geofences_added">Geofence added.</string>
     <string name="geofences_removed">Geofences removed.</string>
     <string name="geofence_over">You have found the treasure! Congratulations!</string>
 

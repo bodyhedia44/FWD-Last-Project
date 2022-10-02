@@ -6,10 +6,16 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
+import com.udacity.project4.R
+import com.udacity.project4.base.NavigationCommand
+import com.udacity.project4.locationreminders.data.ReminderDataSource
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.savereminder.GeofencingConstants
-import com.udacity.project4.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment.Companion.ACTION_GEOFENCE_EVENT
+import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment.Companion.ACTION_GEOFENCE_EVENT
+import kotlinx.coroutines.launch
 
 /**
  * Triggered by the Geofence.  Since we can have many Geofences at once, we pull the request
@@ -40,12 +46,14 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                             return
                         }
                     }
-                    val foundIndex = GeofencingConstants.LANDMARK_DATA.indexOfFirst {
-                        it.id == fenceId
-                    }
-                    if (-1 == foundIndex) {
-                        return
-                    }
+                    Log.d("found",fenceId.toString())
+
+//                    val foundIndex = GeofencingConstants.LANDMARK_DATA.indexOfFirst {
+//                        it.id == fenceId
+//                    }
+//                    if (-1 == foundIndex) {
+//                        return
+//                    }
                     val notificationManager = ContextCompat.getSystemService(
                         context,
                         NotificationManager::class.java

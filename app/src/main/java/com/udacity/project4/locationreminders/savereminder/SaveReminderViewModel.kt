@@ -1,6 +1,7 @@
 package com.udacity.project4.locationreminders.savereminder
 
 import android.app.Application
+import android.icu.util.TimeUnit
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PointOfInterest
@@ -63,6 +64,21 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             navigationCommand.value = NavigationCommand.Back
         }
     }
+//    fun getReminder(reminderData: ReminderDataItem) {
+//        viewModelScope.launch {
+//            dataSource.saveReminder(
+//                ReminderDTO(
+//                    reminderData.title,
+//                    reminderData.description,
+//                    reminderData.location,
+//                    reminderData.latitude,
+//                    reminderData.longitude,
+//                    reminderData.id
+//                )
+//            )
+//
+//        }
+//    }
 
     /**
      * Validate the entered data and show error to the user if there's any invalid data
@@ -79,89 +95,9 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         }
         return true
     }
-
-    private val _geofenceIndex = MutableLiveData<Int>(-1)
-    private val _hintIndex =MutableLiveData<Int>(0)
-    val geofenceIndex: LiveData<Int>
-        get() = _geofenceIndex
-
-    val geofenceHintResourceId = Transformations.map(geofenceIndex) {
-        val index = geofenceIndex?.value ?: -1
-        when {
-            index < 0 -> R.string.not_started_hint
-            index < GeofencingConstants.NUM_LANDMARKS -> GeofencingConstants.LANDMARK_DATA[geofenceIndex.value!!].hint
-            else -> R.string.geofence_over
-        }
-    }
-
-//    val geofenceImageResourceId = Transformations.map(geofenceIndex) {
-//        val index = geofenceIndex.value ?: -1
-//        when {
-//            index < GeofencingConstants.NUM_LANDMARKS -> R.drawable.android_map
-//            else -> R.drawable.android_treasure
-//        }
-//    }
-
-    fun updateHint(currentIndex: Int) {
-        _hintIndex.value = currentIndex+1
-    }
-
-    fun geofenceActivated() {
-        _geofenceIndex.value = _hintIndex.value
-    }
-
-    fun geofenceIsActive() =_geofenceIndex.value == _hintIndex.value
-    fun nextGeofenceIndex() = _hintIndex.value ?: 0
-
-
-
-    private val _POIs = MutableLiveData<MutableList<ReminderDTO>>()
-    val POIs: LiveData<MutableList<ReminderDTO>>
-        get() = _POIs
 }
 
-private const val HINT_INDEX_KEY = "hintIndex"
-private const val GEOFENCE_INDEX_KEY = "geofenceIndex"
-data class LandmarkDataObject(val id: String, val hint: Int, val name: Int, val latLong: LatLng)
 internal object GeofencingConstants {
-
-    /**
-     * Used to set an expiration time for a geofence. After this amount of time, Location services
-     * stops tracking the geofence. For this sample, geofences expire after one hour.
-     */
-    val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = java.util.concurrent.TimeUnit.HOURS.toMillis(1)
-
-    val LANDMARK_DATA = arrayOf(
-        LandmarkDataObject(
-            "golden_gate_bridge",
-            R.string.golden_gate_bridge_hint,
-            R.string.golden_gate_bridge_location,
-            LatLng(37.819927, -122.478256)
-        ),
-
-        LandmarkDataObject(
-            "ferry_building",
-            R.string.ferry_building_hint,
-            R.string.ferry_building_location,
-            LatLng(37.795490, -122.394276)
-        ),
-
-        LandmarkDataObject(
-            "pier_39",
-            R.string.pier_39_hint,
-            R.string.pier_39_location,
-            LatLng(37.808674, -122.409821)
-        ),
-
-        LandmarkDataObject(
-            "union_square",
-            R.string.union_square_hint,
-            R.string.union_square_location,
-            LatLng(37.788151, -122.407570)
-        )
-    )
-
-    val NUM_LANDMARKS = LANDMARK_DATA.size
+    val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = java.util.concurrent.TimeUnit.HOURS.toMillis(720)
     const val GEOFENCE_RADIUS_IN_METERS = 100f
-    const val EXTRA_GEOFENCE_INDEX = "GEOFENCE_INDEX"
 }
