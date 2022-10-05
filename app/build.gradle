@@ -59,6 +59,7 @@ dependencies {
     //Navigation dependencies
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-rc1'
+    testImplementation project(path: ':app')
     kapt "androidx.lifecycle:lifecycle-compiler:$archLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$archLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$archLifecycleVersion"
@@ -87,7 +88,7 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$archTestingVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
-    testImplementation "org.robolectric:robolectric:$robolectricVersion"
+    testImplementation "org.robolectric:robolectric:4.5-alpha-3"
     testImplementation "com.google.truth:truth:$truthVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
 
@@ -125,5 +126,7 @@ dependencies {
 
 
     implementation 'com.firebaseui:firebase-ui-auth:6.0.1'
+    implementation "android.arch.work:work-runtime-ktx:1.0.1"
+
 
 }

@@ -13,7 +13,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.launch
 
-class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
+class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource?) :
     BaseViewModel(app) {
     val reminderTitle = MutableLiveData<String>()
     val reminderDescription = MutableLiveData<String>()
@@ -49,7 +49,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     fun saveReminder(reminderData: ReminderDataItem) {
         showLoading.value = true
         viewModelScope.launch {
-            dataSource.saveReminder(
+            dataSource?.saveReminder(
                 ReminderDTO(
                     reminderData.title,
                     reminderData.description,
@@ -64,22 +64,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             navigationCommand.value = NavigationCommand.Back
         }
     }
-//    fun getReminder(reminderData: ReminderDataItem) {
-//        viewModelScope.launch {
-//            dataSource.saveReminder(
-//                ReminderDTO(
-//                    reminderData.title,
-//                    reminderData.description,
-//                    reminderData.location,
-//                    reminderData.latitude,
-//                    reminderData.longitude,
-//                    reminderData.id
-//                )
-//            )
-//
-//        }
-//    }
-
     /**
      * Validate the entered data and show error to the user if there's any invalid data
      */

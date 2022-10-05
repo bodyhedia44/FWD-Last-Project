@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
 import com.udacity.project4.R
 import com.udacity.project4.base.NavigationCommand
@@ -15,6 +16,7 @@ import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.savereminder.GeofencingConstants
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment.Companion.ACTION_GEOFENCE_EVENT
+import com.udacity.project4.utils.sendNotification
 import kotlinx.coroutines.launch
 
 /**
@@ -30,40 +32,56 @@ import kotlinx.coroutines.launch
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
-            if (intent.action == ACTION_GEOFENCE_EVENT) {
-                val geofencingEvent = GeofencingEvent.fromIntent(intent)
+        val geofencingEvent = GeofencingEvent.fromIntent(intent)
+        if (geofencingEvent.hasError()) {
+            val errorMessage = GeofenceStatusCodes
+                .getStatusCodeString(geofencingEvent.errorCode)
+            Log.e("error", errorMessage)
+            return
+        }
 
-                if (geofencingEvent.hasError()) {
-                    return
-                }
+        // Get the transition type.
+        val geofenceTransition = geofencingEvent.geofenceTransition
 
-                if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+        // Test that the reported transition was of interest.
+        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
+        geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
 
-                    val fenceId = when {
-                        geofencingEvent.triggeringGeofences.isNotEmpty() ->
-                            geofencingEvent.triggeringGeofences[0].requestId
-                        else -> {
-                            return
-                        }
-                    }
-                    Log.d("found",fenceId.toString())
+            val triggeringGeofences = geofencingEvent.triggeringGeofences
 
-//                    val foundIndex = GeofencingConstants.LANDMARK_DATA.indexOfFirst {
-//                        it.id == fenceId
+//            val geofenceTransitionDetails = getGeofenceTransitionDetails(
+//                this,
+//                geofenceTransition,
+//                triggeringGeofences
+//            )
+
+//            sendNotification(geofenceTransitionDetails)
+            Log.i("Tesssst", geofenceTransition.toString())
+        } else {
+            // Log the error.
+            Log.e("Error", "donr")
+        }
+
+//            if (intent.action == ACTION_GEOFENCE_EVENT) {
+//                val geofencingEvent = GeofencingEvent.fromIntent(intent)
+//
+//                if (geofencingEvent.hasError()) {
+//                    return
+//                }
+//
+//                if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+//
+//                    val fenceId = when {
+//                        geofencingEvent.triggeringGeofences.isNotEmpty() ->
+//                            geofencingEvent.triggeringGeofences[0].requestId
+//                        else -> {
+//                            return
+//                        }
 //                    }
-//                    if (-1 == foundIndex) {
-//                        return
-//                    }
-                    val notificationManager = ContextCompat.getSystemService(
-                        context,
-                        NotificationManager::class.java
-                    ) as NotificationManager
-
-//                    notificationManager.sendGeofenceEnteredNotification(
-//                        context, foundIndex
-//                    )
-                }
-            }
+//                    Log.d("found",fenceId.toString())
+//
+//                }
+//            }
         }
 
     }

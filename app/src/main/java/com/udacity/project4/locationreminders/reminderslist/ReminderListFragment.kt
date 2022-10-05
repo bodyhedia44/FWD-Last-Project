@@ -19,6 +19,7 @@ import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentRemindersBinding
+import com.udacity.project4.locationreminders.savereminder.SaveReminderFragmentDirections
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.setTitle
 import com.udacity.project4.utils.setup
@@ -84,7 +85,8 @@ class ReminderListFragment : BaseFragment() {
         when (item.itemId) {
             R.id.logout -> {
                 AuthUI.getInstance().signOut(requireContext()).addOnCompleteListener {
-                   findNavController().navigate(R.id.action_reminderListFragment_to_mainActivity)
+                    _viewModel.navigationCommand.value =
+                        NavigationCommand.To(ReminderListFragmentDirections.actionReminderListFragmentToMainActivity())
                 }
             }
         }

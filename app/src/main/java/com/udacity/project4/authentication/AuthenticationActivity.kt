@@ -9,8 +9,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.map
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
-import com.udacity.project4.R
 import com.google.firebase.auth.FirebaseAuth
+import com.udacity.project4.R
+import com.udacity.project4.locationreminders.RemindersActivity
 
 /**
  * This class should be the starting point of the app, It asks the users to sign in / register, and redirects the
@@ -75,7 +76,8 @@ class AuthenticationActivity : AppCompatActivity() {
             when (authenticationState) {
                 AuthenticationState.AUTHENTICATED -> {
                     Log.d("stateee","sign")
-                    setContentView(R.layout.activity_reminders)
+                    val i = Intent(this, RemindersActivity::class.java)
+                    startActivity(i)
                 }
                 else -> {
                     Log.d("stateee","not")
