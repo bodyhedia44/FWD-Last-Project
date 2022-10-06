@@ -4,10 +4,9 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
-class FakeDataSource : ReminderDataSource {
+class FakeDataSource(var fakelist:List<ReminderDTO>) : ReminderDataSource {
 
 //    TODO: Create a fake data source to act as a double to the real data source
-lateinit var fakelist:List<ReminderDTO>
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
         return Result.Success(fakelist)
     }
@@ -17,10 +16,11 @@ lateinit var fakelist:List<ReminderDTO>
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        if (fakelist.first{ it.id==id}==null){
-            return Result.Error("Erro")
-        }else{
-            return Result.Success(fakelist.first{ it.id==id})
+        if (fakelist.find{ it.id==id}!= null){
+            return Result.Success(fakelist.find{ it.id==id}!!)
+        }else
+        {
+            return Result.Error("No Item")
         }
     }
 

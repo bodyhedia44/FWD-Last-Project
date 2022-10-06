@@ -4,7 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 
@@ -13,24 +15,33 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
+@ExperimentalCoroutinesApi
 class SaveReminderViewModelTest {
+
+    private lateinit var datasource :FakeDataSource
+    private lateinit var viewmodel :SaveReminderViewModel
 
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
+    @Before
+    fun setupViewModel(){
+        datasource= FakeDataSource(listOf())
 
+       viewmodel=SaveReminderViewModel(ApplicationProvider.getApplicationContext(),datasource)
+
+    }
 
     @Test
     fun onClear_Test() {
         val observer=Observer<Double> {}
         val observer2=Observer<String> {}
-        val viewmodel=SaveReminderViewModel(ApplicationProvider.getApplicationContext(),null)
 
 try {
     viewmodel.latitude.observeForever(observer)
@@ -62,7 +73,7 @@ try {
 
 
     @Test
-   fun validateEnteredData(){
+   fun validateEnteredData_Test(){
         val viewmodel=SaveReminderViewModel(ApplicationProvider.getApplicationContext(),null)
 
 
@@ -81,6 +92,5 @@ try {
         Assert.assertEquals( t3, false)
         Assert.assertEquals( t4, true)
     }
-
 
 }

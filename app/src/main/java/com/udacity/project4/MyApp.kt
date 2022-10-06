@@ -1,13 +1,11 @@
 package com.udacity.project4
 
 import android.app.Application
-import android.content.Intent
 import android.os.Build
 import androidx.work.*
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
-import com.udacity.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import kotlinx.coroutines.CoroutineScope
