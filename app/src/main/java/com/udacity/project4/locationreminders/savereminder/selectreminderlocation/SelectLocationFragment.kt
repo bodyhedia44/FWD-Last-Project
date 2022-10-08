@@ -66,18 +66,18 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
-
         binding.button.setOnClickListener{
             onLocationSelected()
         }
         return binding.root
     }
 
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
-//        checkDeviceLocationSettingsAndStartGeofence()
+        checkDeviceLocationSettingsAndStartGeofence()
     }
 
     private fun onLocationSelected() {

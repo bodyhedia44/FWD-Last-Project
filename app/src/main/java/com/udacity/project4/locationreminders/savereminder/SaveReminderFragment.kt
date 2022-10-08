@@ -53,6 +53,11 @@ class SaveReminderFragment : BaseFragment(){
         super.onCreate(savedInstanceState)
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
     }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        geofencingClient = LocationServices.getGeofencingClient(requireActivity())
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -119,32 +124,40 @@ class SaveReminderFragment : BaseFragment(){
             .addGeofence(geofence)
             .build()
 
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-            addOnCompleteListener {
-                if (ActivityCompat.checkSelfPermission(
-                        requireContext(),
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    return@addOnCompleteListener
-                }
-                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
-                    addOnSuccessListener {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+            addOnSuccessListener {
 //                        Toast.makeText(context, "geofences_added",
 //                            Toast.LENGTH_SHORT)
 //                            .show()
-                        Log.e("Add Geofence", geofence.requestId)
-                    }
-                    addOnFailureListener {
-                        Toast.makeText(requireContext(), "geofences_not_added",
-                            Toast.LENGTH_SHORT).show()
-                        if ((it.message != null)) {
-                            Log.w(TAG, it.message!!)
-                        }
-                    }
+                Log.e("Add Geofence", geofence.requestId)
+            }
+            addOnFailureListener {
+                Toast.makeText(requireContext(), "geofences_not_added",
+                    Toast.LENGTH_SHORT).show()
+                if ((it.message != null)) {
+                    Log.w(TAG, it.message!!)
                 }
             }
         }
+//        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+//            addOnCompleteListener {
+//                if (ActivityCompat.checkSelfPermission(
+//                        requireContext(),
+//                        Manifest.permission.ACCESS_FINE_LOCATION
+//                    ) != PackageManager.PERMISSION_GRANTED
+//                ) {
+//                    return@addOnCompleteListener
+//                }
+//
+//            }
+//        }
     }
     private fun removeGeofences() {
 

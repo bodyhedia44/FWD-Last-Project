@@ -37,7 +37,8 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         //TODO: handle the geofencing transition events and
         // send a notification to the user when he enters the geofence area
         //TODO call @sendNotification
-        Log.d("found",intent.data.toString())
+        Log.d("permLoc",intent.data.toString())
+
     }
 
     //TODO: get the request id of the current geofence

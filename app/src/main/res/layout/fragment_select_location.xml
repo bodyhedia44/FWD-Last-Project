@@ -38,20 +38,3 @@
     </androidx.fragment.app.FragmentContainerView>
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
-<!--<layout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--    android:name="com.google.android.gms.maps.SupportMapFragment"-->
-<!--    android:id="@+id/map"-->
-<!--    xmlns:tools="http://schemas.android.com/tools">-->
-
-
-
-<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent">-->
-<!--        &lt;!&ndash;
-TODO: Add the map fragment for the user to select the location&ndash;&gt;-->
-
-
-<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
-<!--</layout>-->

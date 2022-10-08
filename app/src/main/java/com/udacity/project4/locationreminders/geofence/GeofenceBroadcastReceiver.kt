@@ -32,6 +32,8 @@ import kotlinx.coroutines.launch
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
+        Log.d("finally","doneeeeeeeeee")
+
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         if (geofencingEvent.hasError()) {
             val errorMessage = GeofenceStatusCodes
@@ -44,19 +46,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         val geofenceTransition = geofencingEvent.geofenceTransition
 
         // Test that the reported transition was of interest.
-        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-        geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
 
             val triggeringGeofences = geofencingEvent.triggeringGeofences
 
-//            val geofenceTransitionDetails = getGeofenceTransitionDetails(
-//                this,
-//                geofenceTransition,
-//                triggeringGeofences
-//            )
-
 //            sendNotification(geofenceTransitionDetails)
-            Log.i("Tesssst", geofenceTransition.toString())
+
         } else {
             // Log the error.
             Log.e("Error", "donr")

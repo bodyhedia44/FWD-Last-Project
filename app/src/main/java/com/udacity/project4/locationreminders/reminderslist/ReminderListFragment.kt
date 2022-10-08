@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
@@ -44,7 +45,6 @@ class ReminderListFragment : BaseFragment() {
         setDisplayHomeAsUpEnabled(false)
         setTitle(getString(R.string.app_name))
 
-        binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
 
         return binding.root
     }
@@ -93,7 +93,13 @@ class ReminderListFragment : BaseFragment() {
         return super.onOptionsItemSelected(item)
 
     }
-
+    private fun checkPermissionsAndStartGeofencing() {
+        if (foregroundAndBackgroundLocationPermissionApproved()) {
+//            checkDeviceLocationSettingsAndStartGeofence()
+        } else {
+            requestForegroundAndBackgroundLocationPermissions()
+        }
+    }
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 //        display logout as menu item
@@ -118,6 +124,8 @@ class ReminderListFragment : BaseFragment() {
             } else {
                 true
             }
+        Log.d("permLoc",foregroundLocationApproved.toString())
+        Log.d("permLoc",backgroundPermissionApproved.toString())
         return foregroundLocationApproved && backgroundPermissionApproved
     }
 
@@ -130,6 +138,8 @@ class ReminderListFragment : BaseFragment() {
             runningQOrLater -> {
                 permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
+                Log.d("permLoc","done")
+
             }
             else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
         }
@@ -143,7 +153,7 @@ class ReminderListFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        requestForegroundAndBackgroundLocationPermissions()
+        checkPermissionsAndStartGeofencing()
     }
 
     override fun onRequestPermissionsResult(
@@ -159,7 +169,7 @@ class ReminderListFragment : BaseFragment() {
                     PackageManager.PERMISSION_DENIED))
         {
             Snackbar.make(
-                binding.refreshLayout,
+                binding.lay,
                 R.string.permission_denied_explanation,
                 Snackbar.LENGTH_INDEFINITE
             )
@@ -171,7 +181,9 @@ class ReminderListFragment : BaseFragment() {
                     })
                 }.show()
         } else {
-           // checkDeviceLocationSettingsAndStartGeofence()
+            Log.d("permLoc","done2")
+
+            // checkDeviceLocationSettingsAndStartGeofence()
         }
     }
 }
