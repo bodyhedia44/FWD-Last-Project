@@ -91,12 +91,14 @@ class SaveReminderFragment : BaseFragment(){
             val latitude = _viewModel.latitude.value
             val longitude = _viewModel.longitude.value
             Log.d("Tag",location.toString())
+            Log.d("Tag",longitude.toString())
+            Log.d("Tag",latitude.toString())
 
             val added= ReminderDataItem(
                 title, description, location , latitude , longitude
             )
                 _viewModel.validateAndSaveReminder(added)
-            addGeofenceForClue(added)
+            if (_viewModel.validate.value==true) addGeofenceForClue(added)
         }
     }
 

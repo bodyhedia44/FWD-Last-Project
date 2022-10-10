@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
  */
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context, intent: Intent) {
 
         Log.d("finally","doneeeeeeeeee")

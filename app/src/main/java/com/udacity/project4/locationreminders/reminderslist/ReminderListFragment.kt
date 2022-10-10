@@ -86,7 +86,7 @@ class ReminderListFragment : BaseFragment() {
             R.id.logout -> {
                 AuthUI.getInstance().signOut(requireContext()).addOnCompleteListener {
                     _viewModel.navigationCommand.value =
-                        NavigationCommand.To(ReminderListFragmentDirections.actionReminderListFragmentToMainActivity())
+                        NavigationCommand.To(ReminderListFragmentDirections.actionReminderListFragmentToAuthenticationActivity())
                 }
             }
         }

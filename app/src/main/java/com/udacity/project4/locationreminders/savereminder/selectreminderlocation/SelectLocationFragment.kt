@@ -122,8 +122,6 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
     override fun onMapReady(p0: GoogleMap?) {
         Log.d("i am here","from frag")
          map=p0!!
-//        val sydeny = LatLng(-34.0,151.0)
-//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydeny,15f))
         if (checkPermission()) return
         map.isMyLocationEnabled=true
         setPoiClick(map)
