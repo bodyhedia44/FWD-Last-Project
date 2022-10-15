@@ -4,13 +4,16 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -29,6 +32,10 @@ class SaveReminderViewModelTest {
 
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
+
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
 
     @Before
     fun setupViewModel(){
@@ -92,5 +99,23 @@ try {
         Assert.assertEquals( t3, false)
         Assert.assertEquals( t4, true)
     }
+    @Test
+    fun SaveReminders_Check_loading() {
+        // Pause dispatcher so you can verify initial values.
+        mainCoroutineRule.pauseDispatcher()
 
+        // Load the task in the view model.
+        val test1= ReminderDataItem("","","",11.0,11.0,"")
+
+        viewmodel.saveReminder(test1)
+
+        // Then assert that the progress indicator is shown.
+        assertThat(viewmodel.showLoading.getOrAwaitValue(), CoreMatchers.`is`(true))
+
+        // Execute pending coroutines actions.
+        mainCoroutineRule.resumeDispatcher()
+
+        // Then assert that the progress indicator is hidden.
+        assertThat(viewmodel.showLoading.getOrAwaitValue(), CoreMatchers.`is`(false))
+    }
 }

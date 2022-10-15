@@ -31,11 +31,11 @@ android {
         includeAndroidResources = true
         returnDefaultValues = true
     }
-
-    //dataBinding {
-    //    enabled = true
-    //    enabledForTests = true
-    //}
+//
+//    dataBinding {
+//        enabled = true
+//        enabledForTests = true
+//    }
     buildFeatures {
         dataBinding true
     }
@@ -59,6 +59,7 @@ dependencies {
     //Navigation dependencies
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-rc1'
+
     testImplementation project(path: ':app')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     androidTestImplementation project(path: ':app')
@@ -100,6 +101,7 @@ dependencies {
     testImplementation "androidx.test.ext:junit-ktx:$androidXTestExtKotlinRunnerVersion"
     testImplementation "androidx.test:rules:$androidXTestRulesVersion"
 
+
     // AndroidX Test - Instrumented testing
     androidTestImplementation "androidx.test:core-ktx:$androidXTestCoreVersion"
     androidTestImplementation "androidx.test.ext:junit-ktx:$androidXTestExtKotlinRunnerVersion"
@@ -113,6 +115,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
     androidTestImplementation "androidx.test.espresso.idling:idling-concurrent:$espressoVersion"
     androidTestImplementation "junit:junit:$junitVersion"
+
     // Once https://issuetracker.google.com/127986458 is fixed this can be testImplementation
     implementation "androidx.fragment:fragment-testing:$fragmentVersion"
     implementation "androidx.test:core:$androidXTestCoreVersion"
@@ -122,6 +125,7 @@ dependencies {
     androidTestImplementation('org.koin:koin-test:2.0.1') { exclude group: 'org.mockito' }
 
     implementation 'com.android.support:multidex:1.0.3'
+    androidTestImplementation("org.robolectric:shadows-framework:4.5-alpha-3")
 
     //Maps & Geofencing
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"

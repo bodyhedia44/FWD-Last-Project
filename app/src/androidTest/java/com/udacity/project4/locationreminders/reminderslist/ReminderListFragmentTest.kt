@@ -11,6 +11,7 @@ import androidx.navigation.Navigation
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -25,8 +26,12 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.monitorFragment
+import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -93,6 +98,24 @@ class ReminderListFragmentTest:AutoCloseKoinTest() {
             repository.deleteAllReminders()
         }
     }
+    // An idling resource that waits for Data Binding to have no pending bindings.
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
+
+
+    @Before
+    fun registerIdlingResource() {
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+    }
+
+    /**
+     * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
+     */
+    @After
+    fun unregisterIdlingResource() {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+    }
 
     @Test
     fun testDisplayReminders() {
@@ -106,7 +129,8 @@ class ReminderListFragmentTest:AutoCloseKoinTest() {
             repository.saveReminder(item)
             // WHEN - Reminders fragment launched to display Reminders
             //we must see this item is diplayed
-            launchFragmentInContainer<ReminderListFragment>(null,R.style.AppTheme)
+            val frag=launchFragmentInContainer<ReminderListFragment>(null,R.style.AppTheme)
+            dataBindingIdlingResource.monitorFragment(frag)
             // THEN - Reminders details are displayed on the screen
             onView(withId(R.id.title)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
             onView(withId(R.id.title)).check(ViewAssertions.matches(ViewMatchers.withText("Text appear 1")))
@@ -125,8 +149,8 @@ class ReminderListFragmentTest:AutoCloseKoinTest() {
 
         // WHEN - Reminders fragment launched to display Reminders
         //we must see this No data is diplayed
-        launchFragmentInContainer<ReminderListFragment>(null,R.style.AppTheme)
-
+        val frag =launchFragmentInContainer<ReminderListFragment>(null,R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(frag)
         // THEN - No data are displayed on the screen
         onView(withId(R.id.noDataTextView)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
@@ -136,7 +160,7 @@ class ReminderListFragmentTest:AutoCloseKoinTest() {
 
         // GIVEN - On the home screen
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
-
+        dataBindingIdlingResource.monitorFragment(scenario)
         val navController = mock(NavController::class.java)
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
