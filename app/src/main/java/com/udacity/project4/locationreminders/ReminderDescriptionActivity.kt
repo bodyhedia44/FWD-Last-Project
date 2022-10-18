@@ -32,6 +32,9 @@ class ReminderDescriptionActivity : AppCompatActivity() {
             this,
             R.layout.activity_reminder_description
         )
-//        TODO: Add the implementation of the reminder details
+        val name=intent.getStringExtra("name")
+        val desc=intent.getStringExtra("desc")
+        binding.name.text="Location: ${name}"
+        binding.desc.text="Description: ${desc}"
     }
 }

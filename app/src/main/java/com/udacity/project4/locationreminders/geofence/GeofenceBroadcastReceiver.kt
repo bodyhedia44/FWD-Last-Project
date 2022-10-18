@@ -1,23 +1,23 @@
 package com.udacity.project4.locationreminders.geofence
 
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewModelScope
+import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
-import com.udacity.project4.R
-import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.savereminder.GeofencingConstants
-import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment.Companion.ACTION_GEOFENCE_EVENT
+import com.udacity.project4.locationreminders.data.dto.Result
+import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
+import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.sendNotification
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import org.koin.android.ext.android.inject
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext.get
 
 /**
  * Triggered by the Geofence.  Since we can have many Geofences at once, we pull the request
@@ -33,9 +33,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
-        Log.d("finally","doneeeeeeeeee")
 
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
+
         if (geofencingEvent.hasError()) {
             val errorMessage = GeofenceStatusCodes
                 .getStatusCodeString(geofencingEvent.errorCode)
@@ -48,36 +48,22 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
         // Test that the reported transition was of interest.
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+            Log.d("finally","doneeeeeeeeee")
 
-            val triggeringGeofences = geofencingEvent.triggeringGeofences
 
-//            sendNotification(geofenceTransitionDetails)
+//            val triggeringGeofences = geofencingEvent.triggeringGeofences
+            val intent=Intent(context, GeofenceTransitionsJobIntentService::class.java)
+            intent.putExtra("id",geofencingEvent.triggeringGeofences[0].requestId.toString())
+
+            GeofenceTransitionsJobIntentService.enqueueWork(context,intent)
 
         } else {
             // Log the error.
             Log.e("Error", "donr")
         }
 
-//            if (intent.action == ACTION_GEOFENCE_EVENT) {
-//                val geofencingEvent = GeofencingEvent.fromIntent(intent)
-//
-//                if (geofencingEvent.hasError()) {
-//                    return
-//                }
-//
-//                if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-//
-//                    val fenceId = when {
-//                        geofencingEvent.triggeringGeofences.isNotEmpty() ->
-//                            geofencingEvent.triggeringGeofences[0].requestId
-//                        else -> {
-//                            return
-//                        }
-//                    }
-//                    Log.d("found",fenceId.toString())
-//
-//                }
-//            }
+
+
         }
 
     }

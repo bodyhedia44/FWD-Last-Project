@@ -32,6 +32,7 @@ import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
+import java.util.*
 
 
 class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
@@ -126,6 +127,7 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
         map.isMyLocationEnabled=true
         setPoiClick(map)
         setMapStyle(map)
+        setMapLongClick(map)
 
     }
 
@@ -152,6 +154,32 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback{
             )
             poiMarker.showInfoWindow()
             _viewModel.selectedPOI.value=poi
+            ispoi+=1
+        }
+    }
+    private fun setMapLongClick(map: GoogleMap) {
+        map.setOnMapLongClickListener { latLng ->
+            map.clear()
+            // A Snippet is Additional text that's displayed below the title.
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long: %2$.5f",
+                latLng.latitude,
+                latLng.longitude
+            )
+           val mark =map.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .title(getString(R.string.dropped_pin))
+                    .snippet(snippet)
+           )
+            mark.showInfoWindow()
+            _viewModel.reminderSelectedLocationStr.value="Dropped pin"
+            _viewModel.latitude.value=latLng.latitude
+            _viewModel.longitude.value=latLng.longitude
+            Log.e("Add Geofence long", latLng.longitude.toString())
+            Log.e("Add Geofence lat", latLng.latitude.toString())
+
             ispoi+=1
         }
     }
