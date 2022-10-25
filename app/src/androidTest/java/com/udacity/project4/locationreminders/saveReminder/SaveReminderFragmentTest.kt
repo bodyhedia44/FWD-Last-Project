@@ -40,9 +40,9 @@ import org.mockito.Mockito
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class SaveReminderTest{
-        @get:Rule
-        var instantExecutorRule = InstantTaskExecutorRule()
+class SaveReminderTest {
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
 
     // An idling resource that waits for Data Binding to have no pending bindings.
     private val dataBindingIdlingResource = DataBindingIdlingResource()
@@ -62,17 +62,17 @@ class SaveReminderTest{
         IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
     }
+
     @Test
     fun testValidationNoLocationNoName() {
         // GIVEN
 
 
         // WHEN - save reminder fragment launched
-        val frag=launchFragmentInContainer<SaveReminderFragment>(null, R.style.AppTheme)
+        val frag = launchFragmentInContainer<SaveReminderFragment>(null, R.style.AppTheme)
         dataBindingIdlingResource.monitorFragment(frag)
 
         // THEN - form are displayed on the screen
-
 
 
         onView(withId(R.id.saveReminder)).perform(click())
@@ -81,6 +81,7 @@ class SaveReminderTest{
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.err_enter_title)))
     }
+
     @Test
     fun testValidationNoLocation() {
         // GIVEN
@@ -103,7 +104,7 @@ class SaveReminderTest{
     }
 
     @Test
-    fun testNavigationToSelectLocation(){
+    fun testNavigationToSelectLocation() {
         val scenario = launchFragmentInContainer<SaveReminderFragment>(Bundle(), R.style.AppTheme)
 
         val navController = Mockito.mock(NavController::class.java)
@@ -121,43 +122,4 @@ class SaveReminderTest{
             SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment()
         )
     }
-
-//    @Test
-//    fun testSaving() {
-//        // GIVEN no data
-//
-//
-//        // WHEN - save reminder fragment launched
-//        launchFragmentInContainer<SaveReminderFragment>(null, R.style.AppTheme)
-//        // THEN - form are displayed on the screen
-//
-//        onView(withId(R.id.reminderTitle))
-//            .perform(typeText("test"))
-////            closeSoftKeyboard()
-//        onView(withId(R.id.selectedLocation)).perform(setTextInTextView("test"))
-//        closeSoftKeyboard()
-//
-//
-//
-//        onView(withId(R.id.saveReminder)).perform(click())
-//
-//    }
-
-
 }
-
-//fun setTextInTextView(value: String?): ViewAction? {
-//    return object : ViewAction {
-//        override fun getConstraints(): Matcher<View> {
-//            return allOf(isDisplayed(), isAssignableFrom(TextView::class.java))
-//        }
-//
-//        override fun perform(uiController: UiController, view: View) {
-//            (view as TextView).text = value
-//        }
-//
-//        override fun getDescription(): String {
-//            return "replace text"
-//        }
-//    }
-//}

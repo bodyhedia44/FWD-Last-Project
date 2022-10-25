@@ -80,6 +80,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             showSnackBarInt.value = R.string.err_select_location
             return false
         }
+        validate.value=true
         return true
     }
 

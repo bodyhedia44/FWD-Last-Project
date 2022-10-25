@@ -51,11 +51,16 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             Log.d("finally","doneeeeeeeeee")
 
 
-//            val triggeringGeofences = geofencingEvent.triggeringGeofences
+            val triggeringGeofences = geofencingEvent.triggeringGeofences
             val intent=Intent(context, GeofenceTransitionsJobIntentService::class.java)
-            intent.putExtra("id",geofencingEvent.triggeringGeofences[0].requestId.toString())
 
-            GeofenceTransitionsJobIntentService.enqueueWork(context,intent)
+            for (i in triggeringGeofences){
+
+                intent.putExtra("id",i.requestId.toString())
+
+                GeofenceTransitionsJobIntentService.enqueueWork(context,intent)
+            }
+
 
         } else {
             // Log the error.

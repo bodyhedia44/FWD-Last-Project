@@ -20,10 +20,14 @@ class FakeDataSource(var fakelist:List<ReminderDTO>) : ReminderDataSource {
     }
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
+
         fakelist+=reminder
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
+        if (shouldReturnError){
+            return Result.Error("Test Error")
+        }
         if (fakelist.find{ it.id==id}!= null){
             return Result.Success(fakelist.find{ it.id==id}!!)
         }else

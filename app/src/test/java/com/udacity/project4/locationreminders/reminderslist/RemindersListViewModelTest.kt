@@ -97,4 +97,14 @@ class RemindersListViewModelTest {
         assertThat(viewmodel.showSnackBar.getOrAwaitValue(), `is`("Test Error"))
 
     }
+    @Test
+    fun loadReminderWhenAreUnavailable_callErrorToDisplay() {
+        datasource= FakeDataSource(localTasks)
+        viewmodel= RemindersListViewModel(ApplicationProvider.getApplicationContext(),datasource)
+        datasource.setReturnError(true)
+        viewmodel.loadReminder("gyggggg")
+
+        assertThat(viewmodel.showSnackBar.getOrAwaitValue(), `is`("Test Error"))
+
+    }
 }
