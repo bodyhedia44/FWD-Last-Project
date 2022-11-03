@@ -43,6 +43,7 @@ import com.udacity.project4.locationreminders.data.local.RemindersDatabase
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.locationreminders.reminderslist.ReminderListFragmentDirections
 import com.udacity.project4.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
@@ -78,7 +79,7 @@ class SaveReminderFragment : BaseFragment(){
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
             // We don't rely on the result code, but just check the location setting again
-            checkDeviceLocationSettingsAndStartGeofence(false,false)
+            checkDeviceLocationSettingsAndStartGeofence(false)
         }
     }
 
@@ -110,7 +111,7 @@ class SaveReminderFragment : BaseFragment(){
                     })
                 }.show()
         } else {
-            checkDeviceLocationSettingsAndStartGeofence(geofence=false)
+            checkDeviceLocationSettingsAndStartGeofence()
         }
     }
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -141,8 +142,10 @@ class SaveReminderFragment : BaseFragment(){
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
-            _viewModel.navigationCommand.value =
-                NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
+            _viewModel.navigationCommand.postValue(
+                NavigationCommand.To(
+                    SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment()
+                ))
         }
 
         binding.saveReminder.setOnClickListener {
@@ -162,7 +165,7 @@ class SaveReminderFragment : BaseFragment(){
 
     private fun checkPermissionsAndStartGeofencing(item:ReminderDataItem) {
         if (foregroundAndBackgroundLocationPermissionApproved()) {
-            checkDeviceLocationSettingsAndStartGeofence(geofence=true,item=item)
+            checkDeviceLocationSettingsAndStartGeofence(item=item)
         } else {
             requestForegroundAndBackgroundLocationPermissions()
         }
@@ -172,7 +175,7 @@ class SaveReminderFragment : BaseFragment(){
         super.onDestroy()
         _viewModel.onClear()
     }
-    private fun checkDeviceLocationSettingsAndStartGeofence(resolve:Boolean = true,geofence:Boolean,item: ReminderDataItem= ReminderDataItem("","","",10.0,1.0)) {
+    private fun checkDeviceLocationSettingsAndStartGeofence(resolve:Boolean = true,item: ReminderDataItem= ReminderDataItem("","","",10.0,1.0)) {
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_LOW_POWER
         }
@@ -198,12 +201,12 @@ class SaveReminderFragment : BaseFragment(){
                     binding.laymain,
                     R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
                 ).setAction(android.R.string.ok) {
-                    checkDeviceLocationSettingsAndStartGeofence(geofence=false)
+                    checkDeviceLocationSettingsAndStartGeofence()
                 }.show()
             }
         }
         locationSettingsResponseTask.addOnCompleteListener {
-            if ( it.isSuccessful && geofence) {
+            if ( it.isSuccessful) {
                 addGeofenceForClue(item)
             }
         }
@@ -248,6 +251,7 @@ class SaveReminderFragment : BaseFragment(){
             permissionsArray,
             resultCode
         )
+
     }
 
     private fun addGeofenceForClue(item: ReminderDataItem) {

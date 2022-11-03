@@ -88,7 +88,9 @@ class SaveReminderTest {
 
 
         // WHEN - save reminder fragment launched
-        launchFragmentInContainer<SaveReminderFragment>(null, R.style.AppTheme)
+        val frag =launchFragmentInContainer<SaveReminderFragment>(null, R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(frag)
+
         // THEN - form are displayed on the screen
 
         onView(withId(R.id.reminderTitle))

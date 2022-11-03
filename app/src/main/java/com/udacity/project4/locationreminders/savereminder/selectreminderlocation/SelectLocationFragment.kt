@@ -15,7 +15,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -66,6 +66,7 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback {
         binding.button.setOnClickListener {
             onLocationSelected()
         }
+
         requestForegroundAndBackgroundLocationPermissions()
         return binding.root
     }
@@ -76,8 +77,18 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback {
 
             val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
             mapFragment?.getMapAsync(this)
+        checkDeviceLocationSettingsAndStartGeofence()
+        _viewModel.locationper.observe(viewLifecycleOwner,Observer{
+            if (it&&this::map.isInitialized) {
+                if (checkPermission()) map.isMyLocationEnabled=true
+            }
+        })
 
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _viewModel.locationper.value=false
     }
 
     private fun onLocationSelected() {
@@ -114,14 +125,14 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback {
         else -> super.onOptionsItemSelected(item)
     }
 
+
     override fun onMapReady(p0: GoogleMap?) {
-        Log.d("i am here", "from frag")
         map = p0!!
-        if (checkPermission()) return
-        if (foregroundPermissionApproved()) map.isMyLocationEnabled = true
+        _viewModel.locationper.value=true
         setPoiClick(map)
         setMapStyle(map)
         setMapLongClick(map)
+
 
     }
     override fun onRequestPermissionsResult(
@@ -160,14 +171,11 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            return true
+            return false
         }
-        return false
+        return true
     }
 
     private fun setPoiClick(map: GoogleMap) {
@@ -255,6 +263,8 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback {
             }
         }
         locationSettingsResponseTask.addOnCompleteListener {
+//    if (!foregroundPermissionApproved())
+            _viewModel.locationper.value=true
 
         }
     }
@@ -282,15 +292,17 @@ class SelectLocationFragment : BaseFragment() ,OnMapReadyCallback {
             permissionsArray,
             REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
         )
-        val currentFragment = fragmentManager!!.findFragmentById(R.id.selectLocationFragment)
-        val fragmentTransaction: FragmentTransaction = fragmentManager!!.beginTransaction()
-        if (currentFragment != null) {
-            fragmentTransaction.detach(currentFragment)
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+           checkDeviceLocationSettingsAndStartGeofence()
+            return
         }
-        if (currentFragment != null) {
-            fragmentTransaction.attach(currentFragment)
-        }
-        fragmentTransaction.commit()
     }
 
 
