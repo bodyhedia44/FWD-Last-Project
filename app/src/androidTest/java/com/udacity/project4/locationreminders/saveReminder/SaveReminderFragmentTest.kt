@@ -110,9 +110,11 @@ class SaveReminderTest {
         val scenario = launchFragmentInContainer<SaveReminderFragment>(Bundle(), R.style.AppTheme)
 
         val navController = Mockito.mock(NavController::class.java)
-        scenario.onFragment {
+        val frag =scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
         }
+        dataBindingIdlingResource.monitorFragment(frag)
+
 
         // WHEN - Click on the FAB
         onView(withId(R.id.selectLocation))
